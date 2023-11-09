@@ -36,10 +36,10 @@ class Denuncia extends Model
         'ultima_ropa_puesta',
         'ubicacion',
         'user_id',
-        'nacionalidad_id',
-        'documento_id',
-        'idioma_id',
-        'tipo_cabello_id',
+        'nacionalidad_id',  // ya
+        'documento_id',     // ya
+        'idioma_id',        // ya
+        'tipo_cabello_id',  // ya
         'estado',
 
     ];
@@ -56,7 +56,7 @@ class Denuncia extends Model
     
     public function nacionalidad(): HasOne
     {
-        return $this->hasOne(Nacionalidad::class);
+        return $this->hasOne(Nacionalidad::class,'id', 'nacionalidad_id');
     }
 
    

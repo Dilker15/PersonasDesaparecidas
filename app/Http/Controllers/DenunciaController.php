@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Denuncia;
 use App\Models\Documento;
 use App\Models\Fotos;
+use App\Models\Nacionalidad;
+use App\Models\Idioma;
+use App\Models\TipoCabello;
+use App\Models\Color;
+
+
+
 
 use Illuminate\Http\Request;
 
@@ -172,11 +179,11 @@ class DenunciaController extends Controller
                                         'hora_desaparicion'=>$request['hora_desaparicion'],
                                         'ultima_ropa_puesta'=>$request['ultima_ropa_puesta'],
                                         'ubicacion'=>$request['ubicacion'],
-                                        'user_id'=>$request['user_id'],
+                                        'user_id'=>$request['user_id'], // numerico el id del user
                                         'nacionalidad_id' => $request['nacionalidad_id'],
-                                        'documento_id'=>$documento->id,
-                                        'idioma_id'=>$request['idioma_id'],
-                                        'tipo_cabello_id'=>$request['tipo_cabello_id'],
+                                        'documento_id'=>$documento->id, // NO
+                                        'idioma_id'=>$request['idioma_id'], // numerico ID del idioma
+                                        'tipo_cabello_id'=>$request['tipo_cabello_id'], // numerico ID del tipocabello
                                     ]);
 
                                     $foto =Fotos::create([
@@ -243,6 +250,41 @@ class DenunciaController extends Controller
         return $detectedText;
     }
 
+
+    public function getHistorialDenuncias($user_id){
+        $denuncias= Denuncia::where('user_id','=',$user_id)->get();
+
+            foreach($denuncias as $denuncia){
+                $datos=Nacionalidad::find($denuncia->nacionalidad_id);
+                $denuncia->nacionalidad_id=$datos->nacionalidad;
+                $datos = Documento::find($denuncia->documento_id);
+                $denuncia->documento_id=$datos->foto;
+                $datos = Idioma::find($denuncia->idioma_id);
+                $denuncia->idioma_id =$datos->nombre;
+                $datos = TipoCabello::find($denuncia->tipo_cabello_id);
+                $denuncia->tipo_cabello_id=$datos->nombre;
+                $datos = Color::find($denuncia->color_ojos);
+                $denuncia->color_ojos = $datos->nombre;
+                $datos = Color::find($denuncia->color_cabello);
+                $denuncia->color_cabello = $datos->nombre;
+                $fotosDeLaDenuncia = Fotos::where('denuncia_id','=',$denuncia->id)->get();
+                $sw=true;
+                foreach ($fotosDeLaDenuncia as $foto) {
+                    $urlFoto = $foto['foto'];
+                    if($sw){
+                        $denuncia->imagen1=$urlFoto;
+                        $sw=false;
+                    }else{
+                        $denuncia->imagen2=$urlFoto;
+                    }
+                 }       
+    
+            }
+        return response()->json([
+            'res'=>true,
+            'datos'=>$denuncias,
+        ]);
+    }
 
     public function verificarSiEsFamoso($urlImagen){
         // return response()->json([
