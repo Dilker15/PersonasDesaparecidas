@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Color;
 
 class ColoresController extends Controller
 {
@@ -11,9 +12,10 @@ class ColoresController extends Controller
      */
     public function index()
     {
+        $colores = Color::get();
         return response()->json([
-            'res'=>true,
-            'data' =>"Dilker Cartagena"
+            'res' => true,
+            'data' =>$colores
         ]);
     }
 

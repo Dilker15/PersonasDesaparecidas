@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\TipoCabello;
 
 class CabellosController extends Controller
 {
@@ -11,7 +12,12 @@ class CabellosController extends Controller
      */
     public function index()
     {
-        //
+        $cabellos = TipoCabello::get();
+        return response()->json([
+            'res' => true,
+            'data' =>$cabellos
+        ]);
+        
     }
 
     /**

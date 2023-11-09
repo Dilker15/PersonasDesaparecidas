@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Nacionalidad;
 
 class NacionalidadesController extends Controller
 {
@@ -11,7 +12,14 @@ class NacionalidadesController extends Controller
      */
     public function index()
     {
-        //
+
+        
+        $nacionalidades = Nacionalidad::get();
+
+        return response()->json([
+            'res '=>true,
+            'data'=>$nacionalidades,
+        ]);
     }
 
     /**

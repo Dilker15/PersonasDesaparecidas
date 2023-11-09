@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Models\Idioma;
 class IdiomasController extends Controller
 {
     /**
@@ -11,7 +11,11 @@ class IdiomasController extends Controller
      */
     public function index()
     {
-        //
+        $idiomas = Idioma::get();
+        return response()->json([
+            'res'=>true,
+            'data'=>$idiomas,
+        ]);
     }
 
     /**

@@ -28,18 +28,18 @@ return new class extends Migration
             $table->time('hora_desaparicion');
             $table->String('ultima_ropa_puesta');
             $table->String('ubicacion');
-            $table->foreignId('user_id')->constrained(table:'users');
-            $table->foreignId('nacionalidad_id')->constrained(table:'nacionalidades');
-            $table->foreignId('documento_id')->constrained(table:'documentos');
-            $table->foreignId('idioma_id')->constrained(table:'idiomas');
-            $table->foreignId('tipo_cabello_id')->constrained(table:'tipos_cabello');
+            $table->foreignId('user_id')->constrained(table:'users')->nullable();
+            $table->foreignId('nacionalidad_id')->constrained(table:'nacionalidades')->nullable();
+            $table->foreignId('documento_id')->constrained(table:'documentos')->nullable();
+            $table->foreignId('idioma_id')->constrained(table:'idiomas')->nullable();
+            $table->foreignId('tipo_cabello_id')->constrained(table:'tipos_cabello')->nullable();
             $table->unsignedSmallInteger('estado')->default(1);
 
             $table->timestamps();
         });
     }
 
-    /**
+    /**c
      * Reverse the migrations.
      */
     public function down(): void

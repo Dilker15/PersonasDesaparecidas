@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Enfermedad;
 
 class EnfermedadesController extends Controller
 {
@@ -11,7 +12,11 @@ class EnfermedadesController extends Controller
      */
     public function index()
     {
-        //
+        $enfermedades = Enfermedad::get();
+        return response()->json([
+            'res'=>true,
+            'data'=>$enfermedades,
+        ]);
     }
 
     /**

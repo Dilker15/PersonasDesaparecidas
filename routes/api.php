@@ -7,6 +7,7 @@ use App\Http\Controllers\CabellosController;
 use App\Http\Controllers\IdiomasController;
 use App\Http\Controllers\EnfermedadesController;
 use App\Http\Controllers\NacionalidadesController;
+use App\Http\Controllers\DenunciaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,11 @@ Route::get('/getNacionalidades',[NacionalidadesController::class,'index']);
 Route::get('/getIdiomas',[IdiomasController::class,'index']);
 Route::get('/getCabellos',[CabellosController::class,'index']);
 Route::get('/getEnfermedades',[EnfermedadesController::class,'index']);
+
+
+Route::post('/denunciar',[DenunciaController::Class,'store']);
+
+//Route::post('/esFamoso',[DenunciaController::class,'verificarSiEsFamoso']);
 
 
 
