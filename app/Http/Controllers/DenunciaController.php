@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Denuncia;
 use App\Models\Documento;
 use App\Models\Fotos;
+use App\Models\Telefonos;
 use App\Models\Nacionalidad;
 use App\Models\Idioma;
 use App\Models\TipoCabello;
@@ -42,6 +43,10 @@ class DenunciaController extends Controller
     public function store(Request $request)
     {
 
+        
+        
+
+        
 
         if($request->hasFile('foto_denuncia')){
         
@@ -57,11 +62,14 @@ class DenunciaController extends Controller
 
 
             $datos = $this->extraerDatosDeLaDenuncia($urlFotoDeLaDenuncia);
-            $cadena_a_buscar = "Div. Trata Y Tráfico de Personas";
+            $cadena_a_buscar = "trata y trafico de personas";
+            $nombreDe=strtolower($request['nombre'].' '.$request['apellidos']);
 
+            $datos = strtolower($datos);
+           
             // SE PUEDE AGREGAR EL NOMBRE QUE SE ENCUENTRA EN LOS CAMPOS DENUNCIA PARA MEJORAR LA BUSQUEDa
         
-            if (preg_match("/" . preg_quote($cadena_a_buscar, "/") . "/", $datos)) {
+            if (preg_match("/" . preg_quote($cadena_a_buscar, "/") . "/", $datos) && preg_match("/" . preg_quote($nombreDe, "/") . "/", $datos) ) {
                 //SI LLEGAMOS AQUI ES POR QUE TIENE UNA DENUNCIA VALIDA EN LA POLICIA.
                 
 
@@ -87,8 +95,14 @@ class DenunciaController extends Controller
                             $urlImagen2 = $imagen2->getSecurePath();
 
 
-                            $esFamosoFoto1 =  $this->verificarSiEsFamoso($urlImagen1);
-                            $esFamosoFoto2 =  $this->verificarSiEsFamoso($urlImagen2);
+
+
+                            $esPersonaFoto1 = $this->verificarSiSonPersonas($urlImagen1);
+                            $esPersonaFoto2 = $this->verificarSiSonPersonas($urlImagen2);
+
+                           if($esPersonaFoto1 && $esPersonaFoto2){
+                                $esFamosoFoto1 =  $this->verificarSiEsFamoso($urlImagen1);
+                                $esFamosoFoto2 =  $this->verificarSiEsFamoso($urlImagen2);
 
                                 if(!$esFamosoFoto1 && !$esFamosoFoto2){
                                     $documento = Documento::create([
@@ -133,6 +147,15 @@ class DenunciaController extends Controller
                                         'denuncia_id'=>$denuncia->id,
                                     ]);
 
+                                    // $contactos = $request['contactos']; // request['contactos'] debe ser un array de minimo 1 numero o mas...
+                                    
+                                    // for($i=0;$i<count($contactos);$i++){
+                                    //     Telefonos::create([
+                                    //         'numero'=>$contactos[$i],
+                                    //         'denuncia_id'=>$denuncia->id,
+                                    //     ]);
+                                    // }
+
                                     return response()->json([
                                         'res' => true,
                                         'mensaje' => "Denuncia Creada Con exito"
@@ -143,6 +166,14 @@ class DenunciaController extends Controller
                                     'res'=>false,
                                     'mensaje'=>"Ingrese Fotos de una persona no famosa"
                                 ]);
+
+                           }
+                                return response()->json([
+                                    'res'=>false,
+                                    'mensaje' => "Las Fotos no son de una persona"
+                                ]);
+                                    
+                           
 
 
 
@@ -156,54 +187,63 @@ class DenunciaController extends Controller
                             $imagen1 =$this->subirCloudinary($rutaDestino);
                             $urlImagen1 = $imagen1->getSecurePath();
 
-                            $esFamoso = $this->verificarSiEsFamoso($urlImagen1);
-                                if(!$esFamoso){
-                                    $documento = Documento::create([
-                                        'foto'=>$urlFotoDeLaDenuncia,
-                                        'secure_url'=>$urlFotoDeLaDenuncia,
-                                        'public_id'=>$imagen1->getPublicId(),
-                                    ]);
-                                    $denuncia = Denuncia::create([
-                                        'nombre'=>$request['nombre'],
-                                        'apellidos'=>$request['apellidos'],
-                                        'genero' =>$request['genero'],
-                                        'fecha_nacimiento'=>$request['fecha_nacimiento'],
-                                        'altura'=>$request['altura'],
-                                        'peso'=>$request['peso'],
-                                        'cicatriz' =>$request['cicatriz'],
-                                        'tatuaje'=>$request['tatuaje'],
-                                        'direccion'=>$request['direccion'],
-                                        'color_cabello'=>$request['color_cabello'],
-                                        'color_ojos' =>$request['color_ojos'],
-                                        'fecha_desaparicion'=>$request['fecha_desaparicion'],
-                                        'hora_desaparicion'=>$request['hora_desaparicion'],
-                                        'ultima_ropa_puesta'=>$request['ultima_ropa_puesta'],
-                                        'ubicacion'=>$request['ubicacion'],
-                                        'user_id'=>$request['user_id'], // numerico el id del user
-                                        'nacionalidad_id' => $request['nacionalidad_id'],
-                                        'documento_id'=>$documento->id, // NO
-                                        'idioma_id'=>$request['idioma_id'], // numerico ID del idioma
-                                        'tipo_cabello_id'=>$request['tipo_cabello_id'], // numerico ID del tipocabello
-                                    ]);
 
-                                    $foto =Fotos::create([
-                                        'foto'=>$urlImagen1,
-                                        'public_id'=>$imagen1->getPublicId(),
-                                        'secure_url'=>$urlImagen1,
-                                        'denuncia_id'=>$denuncia->id,
-                                    ]);
+                            $esPersonaFoto=$this->verificarSiSonPersonas($urlImagen1);
 
-                                    return response()->json([
-                                        'res'=>true,
-                                        'mensaje'=>"Denuncia Creada con exito"
-                                    ]);
-                                }
+                            if($esPersonaFoto){
 
+                                $esFamoso = $this->verificarSiEsFamoso($urlImagen1);
+                                    if(!$esFamoso){
+                                        $documento = Documento::create([
+                                            'foto'=>$urlFotoDeLaDenuncia,
+                                            'secure_url'=>$urlFotoDeLaDenuncia,
+                                            'public_id'=>$imagen1->getPublicId(),
+                                        ]);
+                                        $denuncia = Denuncia::create([
+                                            'nombre'=>$request['nombre'],
+                                            'apellidos'=>$request['apellidos'],
+                                            'genero' =>$request['genero'],
+                                            'fecha_nacimiento'=>$request['fecha_nacimiento'],
+                                            'altura'=>$request['altura'],
+                                            'peso'=>$request['peso'],
+                                            'cicatriz' =>$request['cicatriz'],
+                                            'tatuaje'=>$request['tatuaje'],
+                                            'direccion'=>$request['direccion'],
+                                            'color_cabello'=>$request['color_cabello'],
+                                            'color_ojos' =>$request['color_ojos'],
+                                            'fecha_desaparicion'=>$request['fecha_desaparicion'],
+                                            'hora_desaparicion'=>$request['hora_desaparicion'],
+                                            'ultima_ropa_puesta'=>$request['ultima_ropa_puesta'],
+                                            'ubicacion'=>$request['ubicacion'],
+                                            'user_id'=>$request['user_id'], // numerico el id del user
+                                            'nacionalidad_id' => $request['nacionalidad_id'],
+                                            'documento_id'=>$documento->id, // NO
+                                            'idioma_id'=>$request['idioma_id'], // numerico ID del idioma
+                                            'tipo_cabello_id'=>$request['tipo_cabello_id'], // numerico ID del tipocabello
+                                        ]);
+
+                                        $foto =Fotos::create([
+                                            'foto'=>$urlImagen1,
+                                            'public_id'=>$imagen1->getPublicId(),
+                                            'secure_url'=>$urlImagen1,
+                                            'denuncia_id'=>$denuncia->id,
+                                        ]);
+
+                                        return response()->json([
+                                            'res'=>true,
+                                            'mensaje'=>"Denuncia Creada con exito"
+                                        ]);
+                                    }
+
+                                return response()->json([
+                                    'res'=>false,
+                                    'mensaje'=>"Ingrese Fotos de una persona no famosa"
+                                ]);
+                            }
                             return response()->json([
                                 'res'=>false,
-                                'mensaje'=>"Ingrese Fotos de una persona no famosa"
+                                'mensaje' =>"La Foto No es de una persona"
                             ]);
-
 
                         }
                     }
@@ -211,7 +251,7 @@ class DenunciaController extends Controller
             }
                 return response()->json([
                     'res'=>false,
-                    'datos'=> "Ingrese una foto de La denuncia Policial"
+                    'mensaje'=> "Ingrese una foto de La denuncia Policial de : ".$request['nombre']
                 ]);
                
             
@@ -225,6 +265,34 @@ class DenunciaController extends Controller
 
         $imagen = Cloudinary::upload($rutaDestino,['folders'=>'fotografos']);
         return $imagen;
+    }
+
+
+    public function verificarSiSonPersonas($urlFoto){
+        $cliente = new RekognitionClient([
+            'region' => env('AWS_DEFAULT_REGION'),
+            'version' =>'latest'
+        ]);
+        $result = $cliente->detectLabels([
+            'Image' => [
+                'Bytes' => file_get_contents($urlFoto),
+            ],
+            'MaxLabels' => 15,
+            'MinConfidence' => 80,
+        ]);
+
+        $result = $result['Labels'];
+        $esPerson = false;
+        foreach($result as $res){
+            $res['Name']; /// AQUI ESTAN LAS ETIQUETAS DE LA IA EN FOTOS
+           
+                if($res['Name'] == 'Person' || $res['Name']== 'People'){
+                    $esPerson = true;
+                    break;
+                }
+        }
+        return $esPerson;
+
     }
 
 
