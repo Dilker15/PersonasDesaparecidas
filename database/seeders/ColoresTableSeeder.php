@@ -25,6 +25,7 @@ class ColoresTableSeeder extends Seeder
             'Rosado',
             'Gris',
             'Morado',
+            'Corado',
         ];
 
         foreach ($colores as $color) {

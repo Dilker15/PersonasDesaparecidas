@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->String('nacionalidad',50);
             $table->String('pais',40);
+            $table->String('code_icon',2);
             $table->timestamps();
         });
     }
