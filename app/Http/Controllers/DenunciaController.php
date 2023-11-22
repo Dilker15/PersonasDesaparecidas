@@ -43,10 +43,6 @@ class DenunciaController extends Controller
     public function store(Request $request)
     {
 
-        
-        
-
-        
 
         if($request->hasFile('foto_denuncia')){
         
@@ -69,7 +65,7 @@ class DenunciaController extends Controller
            
             // SE PUEDE AGREGAR EL NOMBRE QUE SE ENCUENTRA EN LOS CAMPOS DENUNCIA PARA MEJORAR LA BUSQUEDa
         
-            if (preg_match("/" . preg_quote($cadena_a_buscar, "/") . "/", $datos) && preg_match("/" . preg_quote($nombreDe, "/") . "/", $datos) ) {
+            if (preg_match("/" . preg_quote($cadena_a_buscar, "/") . "/", $datos) && preg_match("/" . preg_quote($nombreDe, "/") . "/", $datos)) {
                 //SI LLEGAMOS AQUI ES POR QUE TIENE UNA DENUNCIA VALIDA EN LA POLICIA.
                 
 
@@ -93,9 +89,6 @@ class DenunciaController extends Controller
 
                             $imagen2 =$this->subirCloudinary($rutaDestino2);
                             $urlImagen2 = $imagen2->getSecurePath();
-
-
-
 
                             $esPersonaFoto1 = $this->verificarSiSonPersonas($urlImagen1);
                             $esPersonaFoto2 = $this->verificarSiSonPersonas($urlImagen2);
@@ -243,7 +236,7 @@ class DenunciaController extends Controller
                             return response()->json([
                                 'res'=>false,
                                 'mensaje' =>"La Foto No es de una persona"
-                            ]);
+                            ],400);
 
                         }
                     }
@@ -252,11 +245,16 @@ class DenunciaController extends Controller
                 return response()->json([
                     'res'=>false,
                     'mensaje'=> "Ingrese una foto de La denuncia Policial de : ".$request['nombre']
-                ]);
+                ],400);
                
             
 
         }
+
+        return response()->json([
+            'res'=>false,
+            'datos'=>'Denuncia Invalida Ingrese datos validos'
+        ],400);
         
     }
 
@@ -374,6 +372,35 @@ class DenunciaController extends Controller
 
        
         return  (count($respuesta) > 0) ? true : false;
+
+    }
+
+
+    public function denunciasAceptadas(){
+
+        $denuncias = Denuncia::where('estado',1)->get();
+        
+        foreach($denuncias as $denuncia){
+            $fotosDeLaDenuncia = Fotos::where('denuncia_id',$denuncia->id)->get();
+            $fotoDelDocumento = Documento::where('id',$denuncia->documento_id)->first();
+            $denuncia->documento = $fotoDelDocumento->foto;
+            $sw=true;
+                foreach($fotosDeLaDenuncia as $foto){
+                    if($sw){
+                        $denuncia->imagen1 = $foto->foto;
+                        $sw=false;
+                    }else{
+                        $denuncia->imagen2 = $foto->foto;
+                    }
+
+                }
+        }
+        
+        return response()->json([
+            'res' =>true,
+            'datos'=>$denuncias,
+        ],200);
+
 
     }
     /**
