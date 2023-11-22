@@ -212,7 +212,7 @@ class DenunciaController extends Controller
                                             'nacionalidad_id' => $request['nacionalidad_id'],
                                             'documento_id'=>$documento->id, // NO
                                             'idioma_id'=>$request['idioma_id'], // numerico ID del idioma
-                                            'tipo_cabello_id'=>$request['tipo_cabello_id'], // numerico ID del tipocabello
+                                            //'tipo_cabello_id'=>$request['tipo_cabello_id'], // numerico ID del tipocabello
                                         ]);
 
                                         $foto =Fotos::create([

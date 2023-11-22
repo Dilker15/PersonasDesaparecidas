@@ -32,7 +32,7 @@ return new class extends Migration
             $table->foreignId('nacionalidad_id')->constrained(table:'nacionalidades')->nullable();
             $table->foreignId('documento_id')->constrained(table:'documentos')->nullable();
             $table->foreignId('idioma_id')->constrained(table:'idiomas')->nullable();
-            $table->foreignId('tipo_cabello_id')->constrained(table:'tipos_cabello')->nullable();
+            // $table->foreignId('tipo_cabello_id')->constrained(table:'tipos_cabello')->nullable();
             $table->unsignedSmallInteger('estado')->default(1);
             $table->timestamps();
         });
