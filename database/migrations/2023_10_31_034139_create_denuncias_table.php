@@ -34,7 +34,6 @@ return new class extends Migration
             $table->foreignId('idioma_id')->constrained(table:'idiomas')->nullable();
             $table->foreignId('tipo_cabello_id')->constrained(table:'tipos_cabello')->nullable();
             $table->unsignedSmallInteger('estado')->default(1);
-
             $table->timestamps();
         });
     }
