@@ -18,12 +18,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::create([
-            'name' => 'daniel',
-            'email' => 'daniel@gmail.com',
-            'password' => Hash::make('12345678')
-        ]);
-
+        User::factory(15)->create();
         $colores  = new ColoresTableSeeder();
         $colores->run();
         $idiomas  = new IdiomasTableSeeder();
@@ -32,6 +27,6 @@ class DatabaseSeeder extends Seeder
         $nacionalidades->run();
         $tiposCabello  = new TiposCabelloSeeder();
         $tiposCabello->run();
-        
+        $this->call(DenunciaSeeder::class);
     }
 }
