@@ -22,3 +22,5 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/show-denuncia/{denuncia}',[DenunciaController::class,'show'])->name('show.denuncia');
+
+Route::post('/actualizar-estado/{denuncia}',[DenunciaController::class,'actualizarEstado'])->name('actualizar.estado');

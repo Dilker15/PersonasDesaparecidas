@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Denuncia;
+use App\Models\Device;
 
 class User extends Authenticatable
 {
@@ -49,6 +50,12 @@ class User extends Authenticatable
     public function denuncias():HasMany
     {
         return $this->hasMany(Denuncia::class);
+    }
+
+
+    public function devices():HasMany
+    {
+        return $this->hasMany(Device::class);
     }
 
     

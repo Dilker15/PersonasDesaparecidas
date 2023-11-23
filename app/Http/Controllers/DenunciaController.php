@@ -360,6 +360,43 @@ class DenunciaController extends Controller
 
     public function mostrarDenuncia($id){
         
+        $denuncia = Denuncia::find($id);
+        $year = Carbon::now()->year;
+                $datos=Nacionalidad::find($denuncia->nacionalidad_id);
+                $denuncia->nacionalidad_code=$datos->code_icon;
+                $denuncia->nacionalidad_id = $datos->nacionalidad;
+                $array = explode("-", $denuncia->fecha_nacimiento);
+                $jsonString = $denuncia->ubicacion;
+                $objetoPHP = json_decode($jsonString);
+                $denuncia->latitude=$objetoPHP->latitude;
+                $denuncia->longitude=$objetoPHP->longitude;
+                $denuncia->edad = $year-$array[0];
+                $datos = Documento::find($denuncia->documento_id);
+                $denuncia->documento_id=$datos->foto;
+                $datos = Idioma::find($denuncia->idioma_id);
+                $denuncia->idioma_id =$datos->nombre;
+                $denuncia->estado = $denuncia->estado_descripcion;
+                $datos = Color::find($denuncia->color_ojos);
+                $denuncia->color_ojos = $datos->nombre;
+                $datos = Color::find($denuncia->color_cabello);
+                $denuncia->color_cabello = $datos->nombre;
+                $fotosDeLaDenuncia = Fotos::where('denuncia_id','=',$denuncia->id)->get();
+                $sw=true;
+                foreach ($fotosDeLaDenuncia as $foto) {
+                    $urlFoto = $foto['foto'];
+                    if($sw){
+                        $denuncia->imagen1=$urlFoto;
+                        $sw=false;
+                    }else{
+                        $denuncia->imagen2=$urlFoto;
+                    }
+                 }       
+    
+         
+        return response()->json([
+            'res'=>true,
+            'datos'=>$denuncia,
+        ]);
 
     }
 
@@ -439,6 +476,17 @@ class DenunciaController extends Controller
         $documento = Documento::where('id',$denuncia->documento_id)->first();
         $colores = Color::get();
         return view('show-denuncia',compact('fotos','documento','denuncia','colores'));
+    }
+
+
+
+    public function actualizarEstado(Request $request,Denuncia $id){
+        
+        $id->update([
+            'estado'=>$request['estado']
+        ]);
+        
+       return  redirect()->route('home');
     }
 
     /**
