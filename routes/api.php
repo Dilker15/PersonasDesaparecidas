@@ -33,10 +33,15 @@ Route::get('/getEnfermedades',[EnfermedadesController::class,'index']);
 
 
 Route::post('/denunciar',[DenunciaController::Class,'store']);
+
+
+
+
+
+
 Route::get('/historial-denuncias/{user_id}',[DenunciaController::Class,'getHistorialDenuncias']);
-
-
 Route::get('/denuncias-aceptadas',[DenunciaController::class,'denunciasAceptadas']);
+Route::get('/mostrar-denuncia/{id}',[DenunciaController::class,'mostrarDenuncia']);
 ////Route::post('/esFamoso',[DenunciaController::class,'verificarSiEsFamoso']);
 
 

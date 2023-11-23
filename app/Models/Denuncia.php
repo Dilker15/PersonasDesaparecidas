@@ -11,6 +11,7 @@ use App\Models\Idioma;
 use App\Models\Nacionalidad;
 use App\Models\Telefono;
 use App\Models\Foto;
+use Carbon\Carbon;
 
 
 class Denuncia extends Model
@@ -44,6 +45,33 @@ class Denuncia extends Model
 
     ];
 
+
+
+    public function getEstadoDescripcionAttribute(){
+       $estados = ["Pendiente","Aceptada","Rechazada"];
+       return $estados[$this->attributes['estado']-1];
+    
+    }
+
+
+    public function getFechaFormateadaAttribute(){
+        $fecha = $this->attributes['created_at'];
+
+        $fechaCarbon = new Carbon($fecha);
+
+        $fechaFormateada = $fechaCarbon->format('d/m/Y');
+        return $fechaFormateada;
+
+    }
+
+
+
+    public function getColorBadgetAttribute(){
+
+            $colores = ['warning','success','danger'];
+            return $colores[$this->attributes['estado']-1];
+
+    }
 
 
 

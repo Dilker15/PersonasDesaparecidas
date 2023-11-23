@@ -13,7 +13,8 @@ use App\Models\Nacionalidad;
 use App\Models\Idioma;
 use App\Models\TipoCabello;
 use App\Models\Color;
-
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 
 
@@ -124,7 +125,8 @@ class DenunciaController extends Controller
                                         'nacionalidad_id' => $request['nacionalidad_id'],
                                         'documento_id'=>$documento->id,
                                         'idioma_id'=>$request['idioma_id'],
-                                        'tipo_cabello_id'=>$request['tipo_cabello_id'],
+                                        'enfermedad'=>$request['enfermedad'],
+                                        'contacto' =>$request['contacto'],
                                     ]);
 
                                     $foto =Fotos::create([
@@ -140,14 +142,7 @@ class DenunciaController extends Controller
                                         'denuncia_id'=>$denuncia->id,
                                     ]);
 
-                                    // $contactos = $request['contactos']; // request['contactos'] debe ser un array de minimo 1 numero o mas...
-                                    
-                                    // for($i=0;$i<count($contactos);$i++){
-                                    //     Telefonos::create([
-                                    //         'numero'=>$contactos[$i],
-                                    //         'denuncia_id'=>$denuncia->id,
-                                    //     ]);
-                                    // }
+                                 
 
                                     return response()->json([
                                         'res' => true,
@@ -212,7 +207,8 @@ class DenunciaController extends Controller
                                             'nacionalidad_id' => $request['nacionalidad_id'],
                                             'documento_id'=>$documento->id, // NO
                                             'idioma_id'=>$request['idioma_id'], // numerico ID del idioma
-                                            //'tipo_cabello_id'=>$request['tipo_cabello_id'], // numerico ID del tipocabello
+                                            'enfermedad'=>$request['enfermedad'],
+                                            'contacto' =>$request['contacto'],
                                         ]);
 
                                         $foto =Fotos::create([
@@ -319,16 +315,23 @@ class DenunciaController extends Controller
 
     public function getHistorialDenuncias($user_id){
         $denuncias= Denuncia::where('user_id','=',$user_id)->get();
-
+        $year = Carbon::now()->year;
             foreach($denuncias as $denuncia){
                 $datos=Nacionalidad::find($denuncia->nacionalidad_id);
-                $denuncia->nacionalidad_id=$datos->nacionalidad;
+                $denuncia->nacionalidad_code=$datos->code_icon;
+                $array = explode("-", $denuncia->fecha_nacimiento);
+                
+                $jsonString = $denuncia->ubicacion;
+                $objetoPHP = json_decode($jsonString);
+                $denuncia->latitude=$objetoPHP->latitude;
+                $denuncia->longitude=$objetoPHP->longitude;
+
+                $denuncia->edad = $year-$array[0];
                 $datos = Documento::find($denuncia->documento_id);
                 $denuncia->documento_id=$datos->foto;
                 $datos = Idioma::find($denuncia->idioma_id);
                 $denuncia->idioma_id =$datos->nombre;
-                $datos = TipoCabello::find($denuncia->tipo_cabello_id);
-                $denuncia->tipo_cabello_id=$datos->nombre;
+                $denuncia->estado = $denuncia->estado_descripcion;
                 $datos = Color::find($denuncia->color_ojos);
                 $denuncia->color_ojos = $datos->nombre;
                 $datos = Color::find($denuncia->color_cabello);
@@ -346,16 +349,21 @@ class DenunciaController extends Controller
                  }       
     
             }
+         
         return response()->json([
             'res'=>true,
             'datos'=>$denuncias,
         ]);
     }
 
+
+
+    public function mostrarDenuncia($id){
+        
+
+    }
+
     public function verificarSiEsFamoso($urlImagen){
-        // return response()->json([
-        //     'res'=>$request['urlImagen'],
-        // ]);
         $cliente = new RekognitionClient([
             'region' => env('AWS_DEFAULT_REGION'),
             'version' =>'latest'
@@ -377,38 +385,60 @@ class DenunciaController extends Controller
 
 
     public function denunciasAceptadas(){
+        $denuncias = Denuncia::where('estado',2)->get();
+        $year = Carbon::now()->year;
 
-        $denuncias = Denuncia::where('estado',1)->get();
-        
-        foreach($denuncias as $denuncia){
-            $fotosDeLaDenuncia = Fotos::where('denuncia_id',$denuncia->id)->get();
-            $fotoDelDocumento = Documento::where('id',$denuncia->documento_id)->first();
-            $denuncia->documento = $fotoDelDocumento->foto;
-            $sw=true;
-                foreach($fotosDeLaDenuncia as $foto){
+            foreach($denuncias as $denuncia){
+                $datos=Nacionalidad::find($denuncia->nacionalidad_id);
+                $denuncia->nacionalidad_code=$datos->code_icon;
+                $array = explode("-", $denuncia->fecha_nacimiento);
+                
+                $jsonString = $denuncia->ubicacion;
+                $objetoPHP = json_decode($jsonString);
+            
+                $denuncia->latitude=$objetoPHP->latitude;
+                $denuncia->longitude=$objetoPHP->longitude;
+                
+
+                $denuncia->edad = $year-$array[0];
+                $datos = Documento::find($denuncia->documento_id);
+                $denuncia->documento_id=$datos->foto;
+                $datos = Idioma::find($denuncia->idioma_id);
+                $denuncia->idioma_id =$datos->nombre;
+                $denuncia->estado = $denuncia->estado_descripcion;
+                $datos = Color::find($denuncia->color_ojos);
+                $denuncia->color_ojos = $datos->nombre;
+                $datos = Color::find($denuncia->color_cabello);
+                $denuncia->color_cabello = $datos->nombre;
+                $fotosDeLaDenuncia = Fotos::where('denuncia_id','=',$denuncia->id)->get();
+                $sw=true;
+                foreach ($fotosDeLaDenuncia as $foto) {
+                    $urlFoto = $foto['foto'];
                     if($sw){
-                        $denuncia->imagen1 = $foto->foto;
+                        $denuncia->imagen1=$urlFoto;
                         $sw=false;
                     }else{
-                        $denuncia->imagen2 = $foto->foto;
+                        $denuncia->imagen2=$urlFoto;
                     }
-
-                }
-        }
-        
+                 }       
+    
+            }
+         
         return response()->json([
-            'res' =>true,
+            'res'=>true,
             'datos'=>$denuncias,
-        ],200);
-
+        ]);
 
     }
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Denuncia $denuncia)
     {
-        //
+        $fotos = Fotos::where('denuncia_id',$denuncia->id)->get();
+        $documento = Documento::where('id',$denuncia->documento_id)->first();
+        $colores = Color::get();
+        return view('show-denuncia',compact('fotos','documento','denuncia','colores'));
     }
 
     /**
