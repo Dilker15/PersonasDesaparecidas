@@ -100,9 +100,16 @@ class AvistamientoController extends Controller
 
         $denuncia = Denuncia::find($denuncia_id);
         $avistamientos = $denuncia->avistamientos;
+
         $fotos="";
             foreach($avistamientos as $avistamiento){
                 $fotos = $avistamiento->fotos."\n";
+                $jsonString = $avistamiento->ubicacion;
+                $objetoPHP = json_decode($jsonString);
+                $avistamiento->latitude=$objetoPHP->latitude;
+                $avistamiento->longitude=$objetoPHP->longitude;
+                
+
             }
         
         return response()->json([

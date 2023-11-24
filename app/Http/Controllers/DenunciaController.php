@@ -15,6 +15,7 @@ use App\Models\TipoCabello;
 use App\Models\Color;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
 
 
 use ExpoSDK\Expo;
@@ -318,6 +319,8 @@ class DenunciaController extends Controller
     }
 
 
+   
+
     public function getHistorialDenuncias($user_id){
         $denuncias= Denuncia::where('user_id','=',$user_id)->get();
         $year = Carbon::now()->year;
@@ -557,41 +560,78 @@ class DenunciaController extends Controller
 
     public function enviarLuxand(Request $request){
 
+            
+            $postData = array(
+                "photo" => curl_file_create("./public/"),
+                "gallery" => "Wedding 2022",
+            );
+            // Endpoint URL
+            $url = "https://api.luxand.cloud/photo";
 
-        $apiKey = '414d166cb82042b7b2aa8d68374fd749'; // Reemplaza con tu API Key de Luxand
-        $image = $request->file('imagen');
+            // Request headers
+            $headers = array(
+                "token: " . "414d166cb82042b7b2aa8d68374fd749",
+            );
 
-        if ($image) {
-            $client = new Client();
+            // Initialize cURL session
+            $ch = curl_init();
 
-            try {
-                $response = $client->request('POST', 'https://api.luxand.cloud/photo/recognize', [
-                    'headers' => [
-                        'Authorization' => 'Token ' . $apiKey,
-                    ],
-                    'multipart' => [
-                        [
-                            'name' => 'photo',
-                            'contents' => fopen($image->getPathname(), 'r'),
-                            'filename' => $image->getClientOriginalName(),
-                        ],
-                    ],
+            // Set cURL options
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+
+
+            // Execute cURL session and get the response
+            $response = curl_exec($ch);
+
+            // Close cURL session
+            curl_close($ch);
+
+            // Print the response
+           
+
+                return response()->json([
+                    'res'=>true,
+                    'datos'=>$ch,
                 ]);
 
-                $result = $response->getBody()->getContents();
+// Print the response
+        // $apiKey = '414d166cb82042b7b2aa8d68374fd749'; // Reemplaza con tu API Key de Luxand
+        // $image = $request->file('imagen');
 
-                // Maneja la respuesta de Luxand aquí
-                return $result;
-            } catch (\Exception $e) {
-                return $e->getMessage(); // Manejo de errores
-            }
-        }
+        // if ($image) {
+        //     $client = new Client();
 
-        return response()->json([
-            'res'=>true,
-            'datos'=>$result,
-        ]);
-    
+        //     try {
+        //         $response = $client->request('POST', 'https://api.luxand.cloud/photo/store', [
+        //             'headers' => [
+        //                 'Authorization' => 'Token ' . $apiKey,
+        //             ],
+        //             'multipart' => [
+        //                 [
+        //                     'name' => 'photo',
+        //                     'contents' => fopen($image->getPathname(), 'r'),
+        //                     'filename' => $image->getClientOriginalName(),
+        //                 ],
+        //             ],
+        //         ]);
+
+        //         $result = $response->getBody()->getContents();
+
+        //         // Maneja la respuesta de Luxand aquí
+        //         return response()->json([
+        //             'res'=>true,
+        //             'datos'=>$result,
+        //         ]);
+        //     } catch (\Exception $e) {
+        //         return $e->getMessage(); // Manejo de errores
+        //     }
+        // }
+
+       
 
     }
     /**
@@ -617,4 +657,79 @@ class DenunciaController extends Controller
     {
         //
     }
+
+
+    public function escanearPersona(Request $request){
+        $rutaImagen = $request->file('foto');   // aqui se debe obtener la foto del movil "FOTO POLICIAL"
+            $name=time();
+            $rutaDestino = sys_get_temp_dir().DIRECTORY_SEPARATOR."$name.jpg";
+            rename($rutaImagen,$rutaDestino);
+
+            $imagen1 =$this->subirCloudinary($rutaDestino);
+            $urlImagen1 = $imagen1->getSecurePath();
+
+            
+             $similaridad = $this->compararFotografias($urlImagen1);  
+                if($similaridad != 'nada'){
+                    $datos=Nacionalidad::find($similaridad->nacionalidad_id);
+                    $similaridad->nacionalidad_code=$datos->code_icon;
+                    $similaridad->nacionalidad_id = $datos->nacionalidad;
+                    $datos = Color::find($similaridad->color_ojos);
+                    $similaridad->color_ojos = $datos->nombre;
+                    $datos = Color::find($similaridad->color_cabello);
+                    $similaridad->color_cabello = $datos->nombre;
+                    $datos = Documento::find($similaridad->documento_id);
+                    $similaridad->documento_id=$datos->foto;
+                    
+                    return response()->json([
+                        'res'=>true,
+                        'datos'=>$similaridad,
+                    ]);
+                } 
+            return response()->json([
+                'res'=>true,
+                'datos' =>$similaridad,
+            ]);
+
+
+    }
+
+
+    public function compararFotografias($imagen1){
+
+        $cliente = new RekognitionClient([
+            'region' => env('AWS_DEFAULT_REGION'),
+            'version' =>'latest'
+        ]);
+
+        $denuncias= Denuncia::get();
+        $denunciaID;
+            foreach($denuncias as $denuncia){
+                $fotos = $denuncia->fotos;
+               // dd($fotos);
+                    foreach($fotos as $foto){
+                        $fotoDenuncia = $foto['foto'];
+                        $result = $cliente->compareFaces([
+                            'SourceImage' => [
+                                'Bytes' => file_get_contents($fotoDenuncia),
+                            ],
+                            'TargetImage' => [
+                                'Bytes' => file_get_contents($imagen1),
+                            ],
+                        ]);
+                        $faceMatches = $result['FaceMatches'];
+                        if (!empty($faceMatches)) {
+                            $similaridad = $faceMatches[0]['Similarity'];
+                                if($similaridad>20){
+                                    return $denuncia;
+                                }
+                            
+                        }
+                        
+                    }
+            }
+        // Procesa la respuesta de Rekognition aquí
+        return "nada";
+    }
+
 }

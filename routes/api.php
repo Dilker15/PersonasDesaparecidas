@@ -74,6 +74,10 @@ Route::post('/probar-luxand',[DenunciaController::class,'enviarLuxand']);
 
 
 
+Route::post('/escaner',[DenunciaController::class,'escanearPersona']);
+
+
+
 
 
 

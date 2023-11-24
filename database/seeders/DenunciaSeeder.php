@@ -17,9 +17,9 @@ class DenunciaSeeder extends Seeder
     public function run(): void
     {
         $imagenes = [
-            'https://res.cloudinary.com/dirau81x6/image/upload/v1700681116/sedaiboi4khgvnl37avc.jpg',
-            'https://res.cloudinary.com/dirau81x6/image/upload/v1699919729/tyuqqvaobbaecpigf1nb.jpg',
-            'https://res.cloudinary.com/dirau81x6/image/upload/v1699823807/ezsv7oauynmyciv4lnig.jpg'
+            'https://res.cloudinary.com/dirau81x6/image/upload/v1700828735/msyqkcx8lxyxf9c2kt7f.jpg',
+            'https://res.cloudinary.com/dirau81x6/image/upload/v1700837157/xyayqle1i1vyzrhgccbs.png',
+            'https://res.cloudinary.com/dirau81x6/image/upload/v1700828733/ucluxqhphmgkchm2a3mz.jpg'
         ];
 
         $publicIds = [
