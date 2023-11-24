@@ -70,6 +70,8 @@ Route::post('/tracking',[AvistamientoController::class,'mostrarFechasHoras']);
 //ESTA RUTA MOSTRARA LOS FILTROS POR FECHAS EN LA APP.
 Route::get('/filtros/{filtro_id}',[DenunciaController::class,'denunciasFiltradas']);
 
+Route::post('/probar-luxand',[DenunciaController::class,'enviarLuxand']);
+
 
 
 

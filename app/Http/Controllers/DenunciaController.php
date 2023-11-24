@@ -554,6 +554,46 @@ class DenunciaController extends Controller
 
     }
 
+
+    public function enviarLuxand(Request $request){
+
+
+        $apiKey = '414d166cb82042b7b2aa8d68374fd749'; // Reemplaza con tu API Key de Luxand
+        $image = $request->file('imagen');
+
+        if ($image) {
+            $client = new Client();
+
+            try {
+                $response = $client->request('POST', 'https://api.luxand.cloud/photo/recognize', [
+                    'headers' => [
+                        'Authorization' => 'Token ' . $apiKey,
+                    ],
+                    'multipart' => [
+                        [
+                            'name' => 'photo',
+                            'contents' => fopen($image->getPathname(), 'r'),
+                            'filename' => $image->getClientOriginalName(),
+                        ],
+                    ],
+                ]);
+
+                $result = $response->getBody()->getContents();
+
+                // Maneja la respuesta de Luxand aquí
+                return $result;
+            } catch (\Exception $e) {
+                return $e->getMessage(); // Manejo de errores
+            }
+        }
+
+        return response()->json([
+            'res'=>true,
+            'datos'=>$result,
+        ]);
+    
+
+    }
     /**
      * Show the form for editing the specified resource.
      */

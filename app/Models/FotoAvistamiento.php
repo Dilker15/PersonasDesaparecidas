@@ -12,7 +12,7 @@ class FotoAvistamiento extends Model
 
     protected $table = 'foto_avistamientos';
 
-    protected $fillble =[
+    protected $fillable =[
         'foto',
         'public_id',
         'avistamiento_id',

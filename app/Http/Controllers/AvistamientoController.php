@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Avistamiento;
+use App\Models\FotoAvistamiento;
 use App\Models\Denuncia;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Facades\Storage;
@@ -50,9 +51,9 @@ class AvistamientoController extends Controller
 
         
         $imagenes = $request['imagenes'];
-        
+    
         foreach($imagenes as $imagen){
-            $rutaImagen = $request->file($imagen);   // aqui se debe obtener la foto del movil "FOTO POLICIAL"
+            $rutaImagen = $imagen; // aqui se debe obtener la foto del movil "FOTO POLICIAL"
             $name=time();
             $rutaDestino = sys_get_temp_dir().DIRECTORY_SEPARATOR."$name.jpg";
 
@@ -61,7 +62,8 @@ class AvistamientoController extends Controller
             $imagen1 =$this->subirCloudinary($rutaDestino);
             FotoAvistamiento::create([
                 'foto'=>$imagen1->getSecurePath(),
-                'denuncia_id'=>$request['denuncia_id']
+                'public_id'=>$imagen1->getPublicId(),
+                'avistamiento_id'=>$avistamiento->id
             ]);
         }
 
@@ -77,8 +79,7 @@ class AvistamientoController extends Controller
     public function show(string $id)
     {
 
-        // $fechaActual = now()->timestamp;
-        // dd(now());
+    
 
         $avistamiento = Avistamiento::find($id);
         $jsonString = $avistamiento->ubicacion;
