@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Avistamiento;
 use App\Models\Denuncia;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Storage;
 
 
 class AvistamientoController extends Controller
@@ -28,9 +30,45 @@ class AvistamientoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
+     public function subirCloudinary($rutaDestino){
+
+        $imagen = Cloudinary::upload($rutaDestino,['folders'=>'fotografos']);
+        return $imagen;
+    }
+
     public function store(Request $request)
     {
-        //
+        $avistamiento = Avistamiento::create([
+            'descripcion' => $request['descripcion'],
+            'ubicacion' => $request['ubicacion'],
+            'fecha'=> $request['fecha'],
+            'hora'=> $request['hora'],
+            'denuncia_id' => $request['denuncia_id'],
+            'contacto'=>$request['contacto'],
+        ]);
+
+        
+        $imagenes = $request['imagenes'];
+        
+        foreach($imagenes as $imagen){
+            $rutaImagen = $request->file($imagen);   // aqui se debe obtener la foto del movil "FOTO POLICIAL"
+            $name=time();
+            $rutaDestino = sys_get_temp_dir().DIRECTORY_SEPARATOR."$name.jpg";
+
+            rename($rutaImagen,$rutaDestino);
+
+            $imagen1 =$this->subirCloudinary($rutaDestino);
+            FotoAvistamiento::create([
+                'foto'=>$imagen1->getSecurePath(),
+                'denuncia_id'=>$request['denuncia_id']
+            ]);
+        }
+
+        return response()->json([
+            'res'=>true,
+            'datos' => "Avistamiento registrado con Exito"
+        ]);
     }
 
     /**
@@ -92,8 +130,11 @@ class AvistamientoController extends Controller
              'res'=>true,
              'datos' => $avistamientos,
         ]);
-        
+
     }
+
+
+    
 
 
 

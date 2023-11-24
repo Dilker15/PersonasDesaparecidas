@@ -59,6 +59,10 @@ Route::get('/historial-avistamientos/{denuncia_id}',[AvistamientoController::cla
 // ESTA RUTA MUESTRA LOS DATOS DE UNA AVISTAMIENTO ESPECIFICO.
 Route::get('/mostrar-avistamiento/{id}',[AvistamientoController::class,'show']);
 
+// ESTA RUTA CREA UN AVISTAMIENTO , REGISTRA UN AVISTAMIENTO
+Route::post('/registrar-avistamiento',[AvistamientoController::class,'store']);
+
+
 // ESTA RUTA MUESTRA LA UBICACION DE CADA AVISTAMIENTO QUE TIENE UNA DENUNCIA Y SU HORA PARA SE MOSTRADA EN EL MAPA.
 Route::post('/tracking',[AvistamientoController::class,'mostrarFechasHoras']);
 
