@@ -8,7 +8,7 @@ use App\Http\Controllers\IdiomasController;
 use App\Http\Controllers\EnfermedadesController;
 use App\Http\Controllers\NacionalidadesController;
 use App\Http\Controllers\DenunciaController;
-
+use App\Http\Controllers\AvistamientoController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -25,24 +25,46 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+
+//                                  DENUNCIAS
+
+
 Route::get('/getColores',[ColoresController::class,'index']);
 Route::get('/getNacionalidades',[NacionalidadesController::class,'index']);
 Route::get('/getIdiomas',[IdiomasController::class,'index']);
 Route::get('/getCabellos',[CabellosController::class,'index']);
 Route::get('/getEnfermedades',[EnfermedadesController::class,'index']);
-
-
 Route::post('/denunciar',[DenunciaController::Class,'store']);
 
 
-
-
-
-
+// HISTORIAL Y DATOS DE UNA DENUNCIA
 Route::get('/historial-denuncias/{user_id}',[DenunciaController::Class,'getHistorialDenuncias']);
 Route::get('/denuncias-aceptadas',[DenunciaController::class,'denunciasAceptadas']);
 Route::get('/mostrar-denuncia/{id}',[DenunciaController::class,'mostrarDenuncia']);
-////Route::post('/esFamoso',[DenunciaController::class,'verificarSiEsFamoso']);
+
+
+
+// esta ruta de abajo es para cuando se ingresa a la app ,lo que hace es registrar el token del device.
+Route::post('/registrar-token',[DenunciaController::class,'registrarToken']);
+
+
+
+
+//                                      AVISTAMIENTOS
+
+
+// ESTA RUTA ES PARA LOS AVISTAMIENTOS LA PRIMERA ES PARA MOSTRAR TODOS LOS AVISTAMIENTOS DE UNA DENUNCIAS.
+Route::get('/historial-avistamientos/{denuncia_id}',[AvistamientoController::class,'getHistorialAvistamientos']);
+
+// ESTA RUTA MUESTRA LOS DATOS DE UNA AVISTAMIENTO ESPECIFICO.
+Route::get('/mostrar-avistamiento/{id}',[AvistamientoController::class,'show']);
+
+// ESTA RUTA MUESTRA LA UBICACION DE CADA AVISTAMIENTO QUE TIENE UNA DENUNCIA Y SU HORA PARA SE MOSTRADA EN EL MAPA.
+Route::post('/tracking',[AvistamientoController::class,'mostrarFechasHoras']);
+
+
+//ESTA RUTA MOSTRARA LOS FILTROS POR FECHAS EN LA APP.
+Route::get('/filtros/{filtro_id}',[DenunciaController::class,'denunciasFiltradas']);
 
 
 

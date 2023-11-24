@@ -10,6 +10,7 @@ use App\Models\Documento;
 use App\Models\Idioma;
 use App\Models\Nacionalidad;
 use App\Models\Telefono;
+use App\Models\Avistamiento;
 use App\Models\Foto;
 use Carbon\Carbon;
 
@@ -119,6 +120,14 @@ class Denuncia extends Model
     {
         return $this->hasMany(Foto::class);
     }
+
+
+    public function avistamientos()
+    {
+        return $this->hasMany(Avistamiento::class);
+    }
+
+
 
 
 

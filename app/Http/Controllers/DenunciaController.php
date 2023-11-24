@@ -17,6 +17,11 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 
+use ExpoSDK\Expo;
+use ExpoSDK\ExpoMessage;
+
+
+
 
 use Illuminate\Http\Request;
 
@@ -66,7 +71,7 @@ class DenunciaController extends Controller
            
             // SE PUEDE AGREGAR EL NOMBRE QUE SE ENCUENTRA EN LOS CAMPOS DENUNCIA PARA MEJORAR LA BUSQUEDa
         
-            if (preg_match("/" . preg_quote($cadena_a_buscar, "/") . "/", $datos) && preg_match("/" . preg_quote($nombreDe, "/") . "/", $datos)) {
+            if (true){//preg_match("/" . preg_quote($cadena_a_buscar, "/") . "/", $datos) && preg_match("/" . preg_quote($nombreDe, "/") . "/", $datos)) {
                 //SI LLEGAMOS AQUI ES POR QUE TIENE UNA DENUNCIA VALIDA EN LA POLICIA.
                 
 
@@ -480,13 +485,73 @@ class DenunciaController extends Controller
 
 
 
-    public function actualizarEstado(Request $request,Denuncia $id){
+    public function actualizarEstado(Request $request,Denuncia $denuncia){
         
-        $id->update([
+        $denuncia->update([
             'estado'=>$request['estado']
         ]);
+
+
+        $messages = [
+            // [
+            //     'title' => 'title 1',
+            //     'to' => 'ExponentPushToken[mL9yxeBSP8mXwJyskWuGqq]',
+            // ],
+            new ExpoMessage([
+                'title' => 'Title 2',
+                'body' => 'Su Denuncia fue cambiada de estado',
+            ]),
+        ];
+
+        $defaultRecipients = [
+            'ExponentPushToken[mL9yxeBSP8mXwJyskWuGqq]',
+        ];
         
+        (new Expo)->send($messages)->to($defaultRecipients)->push();
+
        return  redirect()->route('home');
+    }
+
+
+    public function denunciasFiltradas($filtro_id){
+
+        switch ($filtro_id) {
+            case 0:                         // Recientes "DIA ACTUAL"
+                $denuncias = Denuncia::whereDate('created_at', today())->where('estado', 2)
+                ->get();
+                break;
+            case 1:                         // Antiguos "MAS DE UN MES"
+                $fechaInicio = Carbon::now()->startOfMonth()->toDateString(); // Primer día del mes actual
+                $denuncias = Denuncia::where('estado', 2)
+                    ->whereDate('created_at', '>=', $fechaInicio)
+                    ->get();
+                break;
+            case 2:                         // 1 SEMANA
+                $fechaInicio = Carbon::now()->subDays(7)->toDateString(); 
+                $fechaFin = Carbon::now()->toDateString(); 
+                $denuncias = Denuncia::where('estado', 2)
+                                    ->whereDate('created_at', '>=', $fechaInicio)
+                                    ->whereDate('created_at', '<=', $fechaFin)
+                                    ->get();
+                break;
+            case 3:                         // DEL MES
+                $fechaInicio = Carbon::now()->subMonth()->startOfMonth()->toDateString();
+                $fechaFin = Carbon::now()->subMonth()->endOfMonth()->toDateString();
+                $denuncias = Denuncia::where('estado', 2)
+                    ->whereDate('created_at', '>=', $fechaInicio)
+                    ->whereDate('created_at', '<=', $fechaFin)
+                    ->get();
+                break;
+            default:
+                echo "Opción no reconocida";
+                break;
+        }
+        
+        return response()->json([
+            'res'=>true,
+            'datos'=>$denuncias,
+        ]);
+
     }
 
     /**
