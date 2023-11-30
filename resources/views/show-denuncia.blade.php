@@ -17,9 +17,9 @@
         @method('POST')
         <div class="cambiar-estado padre">
             <select name="estado" class="form from-control cambiar-estado" id="estado" onchange="enviar()">
-                <option value="1">Pendiente</option>
-                <option value="2">Aceptado</option>
-                <option value="3">Rechazado</option>
+                <option value="1" {{$denuncia->estado == 1? 'selected': '' }} >Pendiente</option>
+                <option value="2" {{$denuncia->estado == 2? 'selected': '' }} >Aceptado</option>
+                <option value="3" {{$denuncia->estado == 3? 'selected': '' }} >Rechazado</option>
             </select>
         </div>
         <div class="card">
