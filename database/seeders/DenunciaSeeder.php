@@ -48,7 +48,7 @@ class DenunciaSeeder extends Seeder
                 'fecha_desaparicion'=>Carbon::now()->format('Y-m-d'),
                 'hora_desaparicion'=>Carbon::now()->format('h:m:s'),
                 'ultima_ropa_puesta'=> 'Polera blanca pantalon azulado',
-                'ubicacion'=>"{'latitude': -17.7962146394544$iterator, 'longitude': -63.2156652957200$iterator}",
+                'ubicacion'=>'{"latitude": -17.7962146394544'.$iterator.', "longitude": -63.2156652957200'.$iterator.'}',
                 'user_id'=>$iterator + 1,
                 'nacionalidad_id' => 1,
                 'documento_id'=>$iterator + 1,
