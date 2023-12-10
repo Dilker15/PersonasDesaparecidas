@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ColoresController;
@@ -76,6 +77,14 @@ Route::post('/probar-luxand',[DenunciaController::class,'enviarLuxand']);
 
 Route::post('/escaner',[DenunciaController::class,'escanearPersona']);
 
+
+// auth jwt
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/registers', [AuthController::class, 'register']);
+
+Route::middleware('auth:api')->group(function(){
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 
 
 
