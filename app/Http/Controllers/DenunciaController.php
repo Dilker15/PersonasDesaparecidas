@@ -494,6 +494,8 @@ class DenunciaController extends Controller
             'estado'=>$request['estado']
         ]);
 
+        $id = $denucia->user_id;
+        $devices = Device::where('user_id',$id)->get();
 
         $messages = [
             new ExpoMessage([
@@ -501,10 +503,12 @@ class DenunciaController extends Controller
                 'body' => 'Su Denuncia fue cambiada de estado',
             ]),
         ];
-
-        $defaultRecipients = [
-            'ExponentPushToken[mL9yxeBSP8mXwJyskWuGqq]',
-        ];
+        $defaultRecipients = [];
+        foreach($devices as $device){
+            $defaultRecipients[]=$device->token;
+            
+        }
+        
         
         (new Expo)->send($messages)->to($defaultRecipients)->push();
 
