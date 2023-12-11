@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Models\Device;
+
 
 class AuthController extends BaseController
 {
@@ -41,16 +43,40 @@ class AuthController extends BaseController
         }
         // end validations
         if(Auth::guard('api')->attempt($credentials)){
-            $user = Auth::guard('api')->user();
+
+
+
+            $tokenMovil = $request['token'];
+            // return response()->json([
+            //     '$tokerMovil'=>$tokenMovil,
+            // ]);
+            $device = Device::where('token',$tokenMovil)->first();
+
+            $user = Auth::guard('api')->user()->id;
             $jwt = JWTAuth::attempt($credentials);
             $data = compact('user', 'jwt');
-            
-            $result = [
-                'access_token' => $jwt,
-                'token_type' => 'Bearer',
-                'user' => $user
-            ];
-            return $this->sendResponse($result, 'You have successfully log in');
+
+                if($device){
+                    $device->user_id=$user;
+                    $device->save();
+
+                }else{
+                    $device =  Device::create([
+                        'user_id'=>$user,
+                        'token'=>$tokenMovil,
+                        
+                    ]);  
+
+                }
+
+                return response()->json([
+                    'res'=>true,
+                    'device'=>$device->user_id,
+                    'user'=>$user,
+                    'token'=>$jwt,
+                ]);
+           
+           // return $this->sendResponse($result, 'You have successfully log in');
         }else{
             $succes = false;
             $message = 'Credenciales incorrectas';

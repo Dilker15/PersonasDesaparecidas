@@ -9,6 +9,7 @@ use App\Http\Controllers\IdiomasController;
 use App\Http\Controllers\EnfermedadesController;
 use App\Http\Controllers\NacionalidadesController;
 use App\Http\Controllers\DenunciaController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AvistamientoController;
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +52,8 @@ Route::post('/registrar-token',[DenunciaController::class,'registrarToken']);
 
 
 
+
+
 //                                      AVISTAMIENTOS
 
 
@@ -80,11 +83,17 @@ Route::post('/escaner',[DenunciaController::class,'escanearPersona']);
 
 // auth jwt
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/registers', [AuthController::class, 'register']);
+Route::post('/register', [UsersController::class,'createUser']);
 
 Route::middleware('auth:api')->group(function(){
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/registrar-avistamiento',[AvistamientoController::class,'store']);
 });
+
+
+
+// Route::post('/registrar-user',[UsersController::class,'createUser']);
+// Route::post('/login',[UsersController::class,'login']);
 
 
 

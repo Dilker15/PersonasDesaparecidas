@@ -8,7 +8,8 @@ use App\Models\FotoAvistamiento;
 use App\Models\Denuncia;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Facades\Storage;
-
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Auth;
 
 class AvistamientoController extends Controller
 {
@@ -40,6 +41,11 @@ class AvistamientoController extends Controller
 
     public function store(Request $request)
     {
+
+        $token = JWTAuth::getToken();
+        $user = JWTAuth::toUser($token)->id;
+
+        
         $avistamiento = Avistamiento::create([
             'descripcion' => $request['descripcion'],
             'ubicacion' => $request['ubicacion'],
@@ -47,6 +53,7 @@ class AvistamientoController extends Controller
             'hora'=> $request['hora'],
             'denuncia_id' => $request['denuncia_id'],
             'contacto'=>$request['contacto'],
+            'user_id'=>$user,
         ]);
 
         

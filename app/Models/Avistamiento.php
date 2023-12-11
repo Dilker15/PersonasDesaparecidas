@@ -17,7 +17,8 @@ class Avistamiento extends Model
         'hora',
         'fecha',
         'contacto',
-        'denuncia_id'
+        'denuncia_id',
+        'user_id',
     ];
 
 

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('token')->unique();
             $table->foreignId('user_id')->constrained(table:'users')->nullable();
-            $table->boolean('estado')->default(0);
+            $table->boolean('estado')->default(1);
             $table->timestamps();
         });
     }

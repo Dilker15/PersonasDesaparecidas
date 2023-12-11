@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('fecha');
             $table->string('contacto');
             $table->foreignId('denuncia_id')->constrained(table:'denuncias')->nullable();
+            $table->foreignId('user_id')->constrained(table:'users')->nullable();
             $table->timestamps();
         });
     }

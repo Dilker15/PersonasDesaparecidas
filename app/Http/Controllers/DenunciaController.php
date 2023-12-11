@@ -496,10 +496,6 @@ class DenunciaController extends Controller
 
 
         $messages = [
-            // [
-            //     'title' => 'title 1',
-            //     'to' => 'ExponentPushToken[mL9yxeBSP8mXwJyskWuGqq]',
-            // ],
             new ExpoMessage([
                 'title' => 'Title 2',
                 'body' => 'Su Denuncia fue cambiada de estado',
