@@ -58,22 +58,23 @@ class AvistamientoController extends Controller
 
         
         $imagenes = $request['imagenes'];
-    
-        foreach($imagenes as $imagen){
-            $rutaImagen = $imagen; // aqui se debe obtener la foto del movil "FOTO POLICIAL"
-            $name=time();
-            $rutaDestino = sys_get_temp_dir().DIRECTORY_SEPARATOR."$name.jpg";
 
-            rename($rutaImagen,$rutaDestino);
+        if(isset($imagenes)){
+            foreach($imagenes as $imagen){
+                $rutaImagen = $imagen; // aqui se debe obtener la foto del movil "FOTO POLICIAL"
+                $name=time();
+                $rutaDestino = sys_get_temp_dir().DIRECTORY_SEPARATOR."$name.jpg";
 
-            $imagen1 =$this->subirCloudinary($rutaDestino);
-            FotoAvistamiento::create([
-                'foto'=>$imagen1->getSecurePath(),
-                'public_id'=>$imagen1->getPublicId(),
-                'avistamiento_id'=>$avistamiento->id
-            ]);
+                rename($rutaImagen,$rutaDestino);
+
+                $imagen1 =$this->subirCloudinary($rutaDestino);
+                FotoAvistamiento::create([
+                    'foto'=>$imagen1->getSecurePath(),
+                    'public_id'=>$imagen1->getPublicId(),
+                    'avistamiento_id'=>$avistamiento->id
+                ]);
+            }
         }
-
         return response()->json([
             'res'=>true,
             'datos' => "Avistamiento registrado con Exito"
