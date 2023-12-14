@@ -16,7 +16,7 @@ use App\Models\Color;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
-
+use App\Models\Device;
 
 use ExpoSDK\Expo;
 use ExpoSDK\ExpoMessage;
@@ -494,13 +494,15 @@ class DenunciaController extends Controller
             'estado'=>$request['estado']
         ]);
 
-        $id = $denucia->user_id;
+        $id = $denuncia->user_id;
         $devices = Device::where('user_id',$id)->get();
 
         $messages = [
-            new ExpoMessage([
+            (new ExpoMessage([
                 'title' => 'Title 2',
                 'body' => 'Su Denuncia fue cambiada de estado',
+            ]))->setData([
+                'denunciaId' => $denuncia->id,
             ]),
         ];
         $defaultRecipients = [];
@@ -509,9 +511,12 @@ class DenunciaController extends Controller
             
         }
         
+        try {
+            (new Expo)->send($messages)->to($defaultRecipients)->push();
+        } catch (\Throwable $th) {
+            
+        }
         
-        (new Expo)->send($messages)->to($defaultRecipients)->push();
-
        return  redirect()->route('home');
     }
 
